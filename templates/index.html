@@ -1,0 +1,71 @@
+<html>
+    <head>
+        <title>NewsMiner</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <header>
+            <nav>
+                <h1>NewsMiner</h1>
+            </nav>
+        </header>
+        <main>
+            <section class="search-section">
+                <form id="search-form">
+                    <input type="text" name="keyword" placeholder="Enter keyword (e.g., Elon Musk)" required>
+                    <input type="date" name="from_date" placeholder="From date (YYYY-MM-DD)">
+                    <input type="date" name="to_date" placeholder="To date (YYYY-MM-DD)">
+                    <input type="text" name="source" placeholder="Enter source (e.g., BBC News)">
+                    <button type="submit">Search</button>
+                </form>
+            </section>
+            <section id="articles-container"></section>
+            <div id="loading" style="display: none;">
+                <div class="spinner"></div>
+            </div>
+        </main>
+        <footer>
+            <p>&copy; 2023 NewsMiner. All rights reserved.</p>
+        </footer>
+        <script>
+            document.getElementById('search-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const keyword = this.keyword.value.trim();
+                const fromDate = this.from_date.value;
+                const toDate = this.to_date.value;
+                const source = this.source.value.trim();
+                if (!keyword) return;
+
+                const loading = document.getElementById('loading');
+                const articlesContainer = document.getElementById('articles-container');
+
+                loading.style.display = 'block';
+                articlesContainer.innerHTML = '';
+
+                const data = new FormData(this);
+                fetch('/search', {
+                    method: 'POST',
+                    body: data
+                })
+                .then(response => response.json())
+                .then(data => {
+                    loading.style.display = 'none';
+                    if (data.status === 'success') {
+                        articlesContainer.innerHTML = data.html;
+                        // Ensure all links open in a new tab
+                        const links = articlesContainer.querySelectorAll('a');
+                        links.forEach(link => link.setAttribute('target', '_blank'));
+                    } else {
+                        articlesContainer.innerHTML = `<p style="color: red; text-align: center;">${data.message}</p>`;
+                    }
+                })
+                .catch(error => {
+                    loading.style.display = 'none';
+                    articlesContainer.innerHTML = `<p style="color: red; text-align: center;">An error occurred. Please try again.</p>`;
+                });
+            });
+        </script>
+    </body>
+</html>

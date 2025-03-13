@@ -1,0 +1,29 @@
+{% if articles%}
+    <h2>Articles for "{{ keyword }}":</h2>
+    {% if from_date or to_date%}
+        <p>
+            {% if from_date and to_date%}
+                Showing news from {{ from_date }} to {{ to_date }}
+            {% elif from_date%}
+                Showing news from {{ from_date }} onwards
+            {% elif to_date%}
+                Showing news up to {{ to_date }}
+            {% endif%}
+        </p>
+    {% endif%}
+    <div class="articles">
+        {% for article in articles%}
+            <div class="article">
+                {% if article.urlToImage%}
+                    <img src="{{ article.urlToImage}}" alt="Article image">
+                {% endif%}
+                <h2><a href="{{ article.url }}" target="_blank">{{ article.title }}</a></h2>
+                <p>{{ article.description or "No description available" }}</p>
+                <p><small>{{ article.source.name }}</small></p>
+                <p><small>{{ article.publishedAtFormatted }}</small></p>
+            </div>
+        {% endfor%}
+    </div>
+{% else%}
+    <p>No articles found for "{{ keyword }}".</p>
+{% endif%}
